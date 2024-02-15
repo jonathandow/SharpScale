@@ -14,6 +14,10 @@
 		316CB1D82B7AA2A3000E1893 /* SharpScaleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1D72B7AA2A3000E1893 /* SharpScaleTests.swift */; };
 		316CB1E22B7AA2A3000E1893 /* SharpScaleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1E12B7AA2A3000E1893 /* SharpScaleUITests.swift */; };
 		316CB1E42B7AA2A3000E1893 /* SharpScaleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1E32B7AA2A3000E1893 /* SharpScaleUITestsLaunchTests.swift */; };
+		316CB1F22B7AA2C7000E1893 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 316CB1F12B7AA2C7000E1893 /* libsqlite3.tbd */; };
+		316CB1F42B7AA2E8000E1893 /* DBHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1F32B7AA2E8000E1893 /* DBHelper.swift */; };
+		316CB1F62B7AA3DE000E1893 /* IngredientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1F52B7AA3DE000E1893 /* IngredientView.swift */; };
+		316CB1F82B7AA3E6000E1893 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1F72B7AA3E6000E1893 /* RecipeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +48,10 @@
 		316CB1DD2B7AA2A3000E1893 /* SharpScaleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SharpScaleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		316CB1E12B7AA2A3000E1893 /* SharpScaleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharpScaleUITests.swift; sourceTree = "<group>"; };
 		316CB1E32B7AA2A3000E1893 /* SharpScaleUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharpScaleUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		316CB1F12B7AA2C7000E1893 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		316CB1F32B7AA2E8000E1893 /* DBHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBHelper.swift; sourceTree = "<group>"; };
+		316CB1F52B7AA3DE000E1893 /* IngredientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientView.swift; sourceTree = "<group>"; };
+		316CB1F72B7AA3E6000E1893 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				316CB1F22B7AA2C7000E1893 /* libsqlite3.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +87,7 @@
 				316CB1D62B7AA2A3000E1893 /* SharpScaleTests */,
 				316CB1E02B7AA2A3000E1893 /* SharpScaleUITests */,
 				316CB1C42B7AA2A0000E1893 /* Products */,
+				316CB1F02B7AA2C7000E1893 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -96,6 +106,9 @@
 			children = (
 				316CB1C62B7AA2A0000E1893 /* SharpScaleApp.swift */,
 				316CB1C82B7AA2A0000E1893 /* ContentView.swift */,
+				316CB1F32B7AA2E8000E1893 /* DBHelper.swift */,
+				316CB1F52B7AA3DE000E1893 /* IngredientView.swift */,
+				316CB1F72B7AA3E6000E1893 /* RecipeView.swift */,
 				316CB1CA2B7AA2A2000E1893 /* Assets.xcassets */,
 				316CB1CC2B7AA2A2000E1893 /* Preview Content */,
 			);
@@ -125,6 +138,14 @@
 				316CB1E32B7AA2A3000E1893 /* SharpScaleUITestsLaunchTests.swift */,
 			);
 			path = SharpScaleUITests;
+			sourceTree = "<group>";
+		};
+		316CB1F02B7AA2C7000E1893 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				316CB1F12B7AA2C7000E1893 /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -258,7 +279,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				316CB1C92B7AA2A0000E1893 /* ContentView.swift in Sources */,
+				316CB1F42B7AA2E8000E1893 /* DBHelper.swift in Sources */,
 				316CB1C72B7AA2A0000E1893 /* SharpScaleApp.swift in Sources */,
+				316CB1F62B7AA3DE000E1893 /* IngredientView.swift in Sources */,
+				316CB1F82B7AA3E6000E1893 /* RecipeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

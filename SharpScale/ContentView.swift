@@ -1,24 +1,25 @@
-//
-//  ContentView.swift
-//  SharpScale
-//
-//  Created by Jonathan Dow on 2/12/24.
-//
-
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
+    @State private var items: [String] = []
+    let dbHelper = SQLiteHelper()
 
-#Preview {
-    ContentView()
+    var body: some View {
+        NavigationView {
+                    List {
+                        Section(header: Text("Recipes")) {
+                            NavigationLink(destination: RecipeView()) {
+                                Text("Manage Recipes")
+                            }
+                        }
+
+                        Section(header: Text("Ingredients")) {
+                            NavigationLink(destination: IngredientView()) {
+                                Text("Manage Ingredients")
+                            }
+                        }
+                    }
+                    .navigationTitle("Main Menu")
+        }
+    }
 }
