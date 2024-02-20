@@ -1,10 +1,15 @@
 import CoreBluetooth
 
+protocol BTManagerDelegate: AnyObject {
+    func didUpdateConnectionStatus(connected: Bool)
+}
+
 class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var centralManager: CBCentralManager!
     var raspberryPiPeripheral: CBPeripheral?
     var recipeCharacteristic: CBCharacteristic?
     var ingredientCharacteristic: CBCharacteristic?
+    weak var delegate: BTManagerDelegate?
 
     let raspberryPiServiceUUID = CBUUID(string: "INSERT SERVICE UUID")
     let recipeCharacteristicUUID = CBUUID(string: "INSERT RECIPE UUID")
@@ -20,6 +25,15 @@ class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             return
         }
         peripheral.writeValue(data, for: characteristic, type: .withResponse)
+    }
+    
+    func startConnectionProcess() {
+        if centralManager.state == .poweredOn {
+            centralManager.scanForPeripherals(withServices: [raspberryPiServiceUUID], options: nil)
+        } else {
+            print("Bluetooth Unavailable")
+            return
+        }
     }
     
     private func findCharacteristic(by uuid: CBUUID, in peripheral: CBPeripheral) -> CBCharacteristic? {
@@ -52,7 +66,13 @@ class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         peripheral.discoverServices([raspberryPiServiceUUID])
+        delegate?.didUpdateConnectionStatus(connected:true)
     }
+    
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+            delegate?.didUpdateConnectionStatus(connected: false)
+        }
+
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
