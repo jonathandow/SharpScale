@@ -11,9 +11,9 @@ class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var ingredientCharacteristic: CBCharacteristic?
     weak var delegate: BTManagerDelegate?
 
-    let raspberryPiServiceUUID = CBUUID(string: "INSERT SERVICE UUID")
-    let recipeCharacteristicUUID = CBUUID(string: "INSERT RECIPE UUID")
-    let ingredientCharacteristicUUID = CBUUID(string: "INSERT INGREDIENT UUID")
+    let raspberryPiServiceUUID = CBUUID(string: "1234")
+    let recipeCharacteristicUUID = CBUUID(string: "1234")
+    let ingredientCharacteristicUUID = CBUUID(string: "1234")
 
     override init() {
         super.init()
@@ -51,7 +51,7 @@ class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
-            centralManager.scanForPeripherals(withServices: [raspberryPiServiceUUID], options: nil)
+            centralManager.scanForPeripherals(withServices: [CBUUID(string: "1234")], options: nil)
         } else {
             print("Bluetooth is not available.")
         }

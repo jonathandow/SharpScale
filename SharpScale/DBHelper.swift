@@ -1,8 +1,6 @@
 import Foundation
 import SQLite3
 
-///Users/jonathandow/Library/Developer/CoreSimulator/Devices/39FDFF99-59BE-4810-9871-C196356A11FB/data/Containers/Data/Application/820C7E76-F4B8-48A7-A916-BA9E5C7EDCA6/Documents
-
 class SQLiteHelper {
     var db: OpaquePointer?
     let dbName = "SharpScaleDB.sqlite"
@@ -16,7 +14,7 @@ class SQLiteHelper {
         let fileURL = try! FileManager.default
             .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             .appendingPathComponent(dbName)
-//        print(fileURL.path)
+        print(fileURL.path)
         var db: OpaquePointer? = nil
         if sqlite3_open(fileURL.path, &db) != SQLITE_OK {
             print("Error opening database")
@@ -170,7 +168,7 @@ class SQLiteHelper {
     
     func deleteIngredient(id: Int) -> Bool {
         var deleteStatement: OpaquePointer?
-        let deleteStatementString = "DELETE FROM ingredients WHERE Id = ?;"
+        let deleteStatementString = "DELETE FROM ingredients WHERE Id = ?; REINDEX ingredients;"
         var isSuccess = true
         if sqlite3_prepare_v2(db, deleteStatementString, -1, &deleteStatement, nil) == SQLITE_OK {
             sqlite3_bind_int(deleteStatement, 1, Int32(id))
@@ -190,7 +188,7 @@ class SQLiteHelper {
     
     func deleteRecipe(id: Int) -> Bool {
         var deleteStatement: OpaquePointer?
-        let deleteStatementString = "DELETE FROM recipes WHERE Id = ?;"
+        let deleteStatementString = "DELETE FROM recipes WHERE Id = ?; REINDEX recipes;"
         var isSuccess = true
         if sqlite3_prepare_v2(db, deleteStatementString, -1, &deleteStatement, nil) == SQLITE_OK {
             sqlite3_bind_int(deleteStatement, 1, Int32(id))

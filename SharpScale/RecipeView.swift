@@ -53,21 +53,38 @@ struct RecipeDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(recipe.name)
-                .font(.title)
-            Text("Ingredients: \(recipe.ingredients)")
+        ScrollView {
+            VStack(alignment: .leading) {
+                Text(recipe.name)
+                    .font(.title)
+                Text("Ingredients: \(recipe.ingredients)")
+                    .font(.headline)
+                VStack(alignment: .leading) {
+                    ForEach(nonEmptySteps, id: \.self) { index in
+                        Text(index)
+                    }
+                }
                 .font(.headline)
-            Text("Steps: \(recipe.steps)")
-                .font(.headline)
-            
-            Spacer()
+                
+                Spacer()
+            }
         }
         .padding()
         .navigationBarItems(trailing: Button("Delete") {
             deleteRecipe()
         })
     }
+    
+    private var stepsArray: [String] {
+        recipe.steps.components(separatedBy: "\n")
+    }
+    
+    private var nonEmptySteps: [String] {
+        stepsArray.filter { !$0.isEmpty }.enumerated().map { index, step in
+            "Step \(index + 1): \(step)"
+        }
+    }
+    
     private func deleteRecipe() {
         if dbHelper.deleteRecipe(id: recipe.id) {
             presentationMode.wrappedValue.dismiss()
@@ -79,7 +96,7 @@ struct AddRecipeView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var recipeName = ""
     @State private var ingredients = ""
-    @State private var steps = ""
+    @State private var steps = [String](repeating: "", count: 1)
     
     let dbHelper = SQLiteHelper()
     
@@ -89,7 +106,14 @@ struct AddRecipeView: View {
             Section {
                 TextField("Recipe Name", text: $recipeName)
                 TextField("Ingredients", text: $ingredients)
-                TextField("Steps", text: $steps)
+                ForEach(0..<steps.count, id: \.self) { index in
+                    TextField("Step \(index + 1)", text: $steps[index])
+                        .onChange(of: steps[index]) { newValue in
+                            if index == steps.count - 1 && !newValue.isEmpty {
+                                steps.append("")
+                            }
+                        }
+                }
             }
             Section {
                 Button("Add Recipe") {
@@ -100,7 +124,8 @@ struct AddRecipeView: View {
         .navigationBarTitle("Add Recipe", displayMode: .inline)
     }
     private func addRecipe() {
-        _ = dbHelper.insertRecipe(name: recipeName, ingredients: ingredients, steps: steps)
+        let stepsString = steps.joined(separator: "\n")
+        _ = dbHelper.insertRecipe(name: recipeName, ingredients: ingredients, steps: stepsString)
         presentationMode.wrappedValue.dismiss()
     }
 }

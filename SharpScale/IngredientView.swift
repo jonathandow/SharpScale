@@ -84,7 +84,7 @@ struct IngredientDetailView: View {
         VStack(alignment: .leading) {
             Text(ingredient.name)
                 .font(.title)
-            Text("Density: \(ingredient.density)")
+            Text("Density: \(String(format: "%.3f", ingredient.density))")
                 .font(.headline)
             
             Spacer()
