@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct IngredientView: View {
+//    private let logger = Logger(subsystem: "com.sharpscale", category: "IngredientView")
     @State private var ingredients: [Ingredient] = []
     let dbHelper = SQLiteHelper()
     var body: some View {

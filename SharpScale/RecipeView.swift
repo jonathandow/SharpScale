@@ -106,13 +106,16 @@ struct AddRecipeView: View {
             Section {
                 TextField("Recipe Name", text: $recipeName)
                 TextField("Ingredients", text: $ingredients)
-                ForEach(0..<steps.count, id: \.self) { index in
-                    TextField("Step \(index + 1)", text: $steps[index])
-                        .onChange(of: steps[index]) { newValue in
-                            if index == steps.count - 1 && !newValue.isEmpty {
-                                steps.append("")
+                ForEach($steps.indices, id: \.self) { index in
+                    TextField("Step \(index + 1)", text: Binding(
+                        get: { self.steps[index] },
+                        set: { newValue in
+                            self.steps[index] = newValue
+                            if index == self.steps.count - 1 && !newValue.isEmpty {
+                                self.steps.append("")
                             }
                         }
+                    ))
                 }
             }
             Section {
