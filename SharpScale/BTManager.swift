@@ -11,9 +11,9 @@ class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var ingredientCharacteristic: CBCharacteristic?
     weak var delegate: BTManagerDelegate?
 
-    let raspberryPiServiceUUID = CBUUID(string: "INSERT SERVICE UUID")
-    let recipeCharacteristicUUID = CBUUID(string: "INSERT RECIPE UUID")
-    let ingredientCharacteristicUUID = CBUUID(string: "INSERT INGREDIENT UUID")
+    let raspberryPiServiceUUID = CBUUID(string: "1803")
+//    let recipeCharacteristicUUID = CBUUID(string: "1234")
+//    let ingredientCharacteristicUUID = CBUUID(string: "1234")
 
     override init() {
         super.init()
@@ -50,21 +50,29 @@ class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        if central.state == .poweredOn {
-            centralManager.scanForPeripherals(withServices: [raspberryPiServiceUUID], options: nil)
-        } else {
-            print("Bluetooth is not available.")
+        switch central.state{
+        case .poweredOn:
+            print("Bluetooth: ON")
+            centralManager.scanForPeripherals(withServices: nil, options: nil)
+        case .poweredOff:
+            print("Bluetooth: OFF")
+        default:
+            print("Bluetooth: UNAVAILABLE")
         }
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        raspberryPiPeripheral = peripheral
-        raspberryPiPeripheral?.delegate = self
-        centralManager.stopScan()
-        centralManager.connect(raspberryPiPeripheral!, options: nil)
+        print("Discovered \(peripheral.name ?? "unknown device")")
+        if peripheral.name == "Raspberry Pi" {
+            centralManager.stopScan()
+            raspberryPiPeripheral = peripheral
+            raspberryPiPeripheral!.delegate = self
+            centralManager.connect(raspberryPiPeripheral!)
+        }
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        print("Connected to \(peripheral.name ?? "unknown device")")
         peripheral.discoverServices([raspberryPiServiceUUID])
         delegate?.didUpdateConnectionStatus(connected:true)
     }
@@ -73,24 +81,24 @@ class BTManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             delegate?.didUpdateConnectionStatus(connected: false)
         }
 
+//
+//    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+//        guard let services = peripheral.services else { return }
+//        for service in services {
+//            peripheral.discoverCharacteristics([recipeCharacteristicUUID, ingredientCharacteristicUUID], for: service)
+//        }
+//    }
 
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        guard let services = peripheral.services else { return }
-        for service in services {
-            peripheral.discoverCharacteristics([recipeCharacteristicUUID, ingredientCharacteristicUUID], for: service)
-        }
-    }
-
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        guard let characteristics = service.characteristics else { return }
-        for characteristic in characteristics {
-            if characteristic.uuid == recipeCharacteristicUUID {
-                recipeCharacteristic = characteristic
-            } else if characteristic.uuid == ingredientCharacteristicUUID {
-                ingredientCharacteristic = characteristic
-            }
-        }
-    }
+//    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+//        guard let characteristics = service.characteristics else { return }
+//        for characteristic in characteristics {
+//            if characteristic.uuid == recipeCharacteristicUUID {
+//                recipeCharacteristic = characteristic
+//            } else if characteristic.uuid == ingredientCharacteristicUUID {
+//                ingredientCharacteristic = characteristic
+//            }
+//        }
+//    }
 
     func sendRecipeData(_ data: Data) {
         guard let characteristic = recipeCharacteristic else { return }
