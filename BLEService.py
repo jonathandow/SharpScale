@@ -35,3 +35,36 @@ class BLEPeripheral(GATTRequestHandler):
 if __name__ == "__main__":
     peripheral = BLEPeripheral()
     peripheral.start()
+
+
+"""
+from bluepy.btle import Peripheral, Service, Characteristic, UUID
+
+# UUIDs for your service and characteristics
+SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
+RECIPE_CHAR_UUID = "abcdef01-1234-5678-1234-56789abcdef0"
+INGREDIENT_CHAR_UUID = "abcdef02-1234-5678-1234-56789abcdef0"
+
+class SimpleBLEPeripheral(Peripheral):
+    def __init__(self, service_uuid, recipe_char_uuid, ingredient_char_uuid):
+        Peripheral.__init__(self)
+
+        self.service = Service(UUID(service_uuid), True)
+        self.addService(self.service)
+
+        self.recipe_char = Characteristic(UUID(recipe_char_uuid), Characteristic.props["READ"] | Characteristic.props["WRITE"], Characteristic.perms["READ"] | Characteristic.perms["WRITE"], 0)
+        self.service.addCharacteristic(self.recipe_char)
+
+        self.ingredient_char = Characteristic(UUID(ingredient_char_uuid), Characteristic.props["READ"] | Characteristic.props["WRITE"], Characteristic.perms["READ"] | Characteristic.perms["WRITE"], 0)
+        self.service.addCharacteristic(self.ingredient_char)
+
+if __name__ == "__main__":
+    peripheral = SimpleBLEPeripheral(SERVICE_UUID, RECIPE_CHAR_UUID, INGREDIENT_CHAR_UUID)
+    try:
+        peripheral.advertise("Raspberry Pi BLE")
+        print("Peripheral is advertising")
+        while True:
+            peripheral.waitForNotifications(1.0)
+    finally:
+        peripheral.disconnect()
+"""
