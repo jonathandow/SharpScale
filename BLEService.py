@@ -2,9 +2,9 @@ import bluetooth
 from bluetooth.ble import GATTRequestHandler, GATTResponse, AdvertisementData, Service, Characteristic, Descriptor
 from uuid import uuid4
 
-SERVICE_UUID = str(uuid4())
-RECIPE_CHAR_UUID = str(uuid4())
-INGREDIENT_CHAR_UUID = str(uuid4())
+SERVICE_UUID = "77670a58-1cb4-4652-ae7d-2492776d303d"
+RECIPE_CHAR_UUID = "b0126643-a97d-4df2-9ba1-9b9659493f8a"
+INGREDIENT_CHAR_UUID = "1f8d9c4c-58bc-468b-9bc8-37d81cf1914d"
 
 class BLEPeripheral(GATTRequestHandler):
     def __init__(self):
