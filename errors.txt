@@ -1,0 +1,6 @@
+Exception in thread HCISocketPoller:
+Fatal Python error: _enter_buffered_busy: could not acquire lock for <_io.BufferedWriter name='<stderr>'> at interpreter shutdown, possibly due to daemon threads
+Python runtime state: finalizing (tstate=0x0000000000a5ef80)
+
+Current thread 0x00007fff085f84c0 (most recent call first):
+  <no Python frame>
