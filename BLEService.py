@@ -1,27 +1,51 @@
-import time
-from adafruit_ble import BLERadio
-from adafruit_ble.services import Service
-from adafruit_ble.uuid import StandardUUID
-from adafruit_ble.characteristics import Characteristic
-from adafruit_ble.characteristics.int import Uint8Characteristic
+import bleno
+from bleno import Characteristic
+import sys
+import signal
 
-class SimpleService(Service):
-    uuid = StandardUUID(0x1234)
-    recipe_char = Uint8Characteristic(uuid=StandardUUID(0x2345), properties=("read", "write"))
-    ingredient_char = Uint8Characteristic(uuid=StandardUUID(0x3456), properties=("read", "write"))
+class CustomCharacteristic(Characteristic):
+    def __init__(self):
+        Characteristic.__init__(self, {
+            'uuid': '13092a53-7511-4ae0-8c9f-97c84cfb5d9a',
+            'properties': ['read', 'write'],
+            'value': None
+        })
 
-ble = BLERadio()
+    def onReadRequest(self, offset, callback):
+        print("Read request received")
+        callback(Characteristic.RESULT_SUCCESS, "Data to send")
 
-service = SimpleService()
-ble._adapter.services.add(service)
+    def onWriteRequest(self, data, offset, withoutResponse, callback):
+        print(f"Write request received: {data}")
+        callback(Characteristic.RESULT_SUCCESS)
 
-print("Advertising BLE service")
-ble.start_advertising(service)
+bleno = bleno.Bleno()
 
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    pass
+class CustomService(bleno.PrimaryService):
+    def __init__(self):
+        bleno.PrimaryService.__init__(self, {
+            'uuid': '77670a58-1cb4-4652-ae7d-2492776d303d', 
+            'characteristics': [
+                CustomCharacteristic()
+            ]
+        })
 
-ble.stop_advertising()
+service = CustomService()
+
+def main():
+    bleno.start()
+
+    print('Advertising service...')
+    bleno.setServices([service])
+
+    try:
+        while True:
+            pass
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print('Stopping BLE peripheral...')
+        bleno.stop()
+
+if __name__ == '__main__':
+    main()
