@@ -1,68 +1,55 @@
-import pybleno
-import array
-
+from bluetooth import *
+import time
 
 SERVICE_UUID = '77670a58-1cb4-4652-ae7d-2492776d303d'
-
 CHARACTERISTIC_UUID = '13092a53-7511-4ae0-8c9f-97c84cfb5d9a'
 
-class Characteristic(pybleno.Characteristic):
-    def __init__(self):
-        pybleno.Characteristic.__init__(self, {
-            'uuid': CHARACTERISTIC_UUID,
-            'properties': ['read', 'write', 'notify'],
-            'value': None
-        })
+DEVICE_NAME = "RaspberryPi5_BLE"
 
-        self._value = array.array('B', [0] * 0)
+def setup_service():
+    try:
+        print("1")
+        server_sock = BluetoothSocket(RFCOMM)
+        print("2")
+        server_sock.bind(("", PORT_ANY))
+        print("3")
+        server_sock.listen(1)
+        print("4")
 
-    def onReadRequest(self, offset, callback):
-        print('Read request received')
+        advertise_service(
+            server_sock,
+            "RaspberryPi5_Service",
+            service_id=SERVICE_UUID,
+            service_classes=[SERVICE_UUID, SERIAL_PORT_CLASS],
+            profiles=[SERIAL_PORT_PROFILE],
+        )
+        print("5")
+        print("Waiting for connection...")
+        client_sock, address = server_sock.accept()
+        print(f"Accepted connection from {address}")
 
-        callback(self.RESULT_SUCCESS, self._value)
+        return client_sock, server_sock
 
-    def onWriteRequest(self, data, offset, withoutResponse, callback):
-        self._value = data
-        print('Write request received:', data)
+    except btcommon.BluetoothError as e:
+        print("Bluetooth error:", e)
+        return None, None
 
-        if len(data) > 0:
-            print('Data received:', data)
+if __name__ == "__main__":
+    print("Main 1")
+    client_sock, server_sock = setup_service()
+    print("Main 2")
+    if client_sock is not None:
+        try:
+            while True:
+                data = "Hello, iOS!"
+                client_sock.send(data.encode())
+                print(f"Sent data: {data}")
 
-        callback(self.RESULT_SUCCESS)
+                time.sleep(1)
 
-    def onSubscribe(self, maxValueSize, updateValueCallback):
-        print('Subscribed to')
-        self._updateValueCallback = updateValueCallback
+        except KeyboardInterrupt:
+            print("Peripheral stopped")
 
-    def onUnsubscribe(self):
-        print('Unsubscribed from')
-        self._updateValueCallback = None
-
-bleno = pybleno.Bleno()
-
-def onStateChange(state):
-    print('on -> stateChange: ' + state)
-
-    if state == 'poweredOn':
-        bleno.startAdvertising('Peripheral', [SERVICE_UUID])
-    else:
-        bleno.stopAdvertising()
-
-bleno.on('stateChange', onStateChange)
-
-def onAdvertisingStart(error):
-    print('on -> advertisingStart: ' + ('error ' + error if error else 'success'))
-
-    if not error:
-        bleno.setServices([
-            pybleno.Service({
-                'uuid': SERVICE_UUID,
-                'characteristics': [
-                    Characteristic()
-                ]
-            })
-        ])
-
-bleno.on('advertisingStart', onAdvertisingStart)
-
-bleno.start()
+        finally:
+            client_sock.close()
+            server_sock.close()
