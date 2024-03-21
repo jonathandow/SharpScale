@@ -1,5 +1,7 @@
 from bluetooth import *
 import time
+from pybleno import Bleno, BlenoPrimaryService, Characteristic
+
 
 SERVICE_UUID = '77670a58-1cb4-4652-ae7d-2492776d303d'
 CHARACTERISTIC_UUID = '13092a53-7511-4ae0-8c9f-97c84cfb5d9a'
@@ -18,7 +20,7 @@ def setup_service():
 
         advertise_service(
             server_sock,
-            "RaspberryPi5_Service",
+            DEVICE_NAME,
             service_id=SERVICE_UUID,
             service_classes=[SERVICE_UUID, SERIAL_PORT_CLASS],
             profiles=[SERIAL_PORT_PROFILE],
