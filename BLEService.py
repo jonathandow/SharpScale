@@ -21,40 +21,33 @@ class MyChar(Characteristic):
 		callback(Characteristic.RESULT_SUCCESS, bytearray(data, 'utf-8'))
 		
 bleno = Bleno()
+print("Initialized Bleno.")
 myCharacteristic = MyChar()
-
-def on_start(success):
-	print("Bleno Starting... {}".format(success))
-	if success:
-		service = BlenoPrimaryService({
-			'uuid': SERVICE_UUID,
-			'characteristics': [myCharacteristic]
-		})
-		bleno.setServices([service])
+print("Initialized Characteristics")
 		
 def on_state_change(state):
 	if state == 'poweredOn':
 		bleno.startAdvertising(DEVICE_NAME, [SERVICE_UUID])
+		print(f"Advertising: ", DEVICE_NAME, SERVICE_UUID)
 	else:
 		bleno.stopAdvertising()
-
-def signal_handler(signal, frame):
-    print('You pressed Ctrl+C!')
-    bleno.stopAdvertising()
-    bleno.disconnect()
-
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
 		
 bleno.on('stateChange', on_state_change)
-bleno.on('advertisingStart', on_start)
+print("On State Change")
+primaryService = BlenoPrimaryService({
+	'uuid': SERVICE_UUID,
+	'characteristics': [MyChar()]
+})
 
+bleno.setServices([primaryService])
 try:
     while True:
         time.sleep(1)
 except KeyboardInterrupt:
     pass
 finally:
-    bleno.stopAdvertising()
-    bleno.disconnect()
+	try:
+		bleno.stopAdvertising()
+		bleno.disconnect()
+	except Exception as e:
+		print("Error cleaning up:", e)
