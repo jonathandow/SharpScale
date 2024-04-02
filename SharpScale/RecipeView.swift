@@ -41,6 +41,7 @@ struct Recipe {
     let name: String
     let ingredients: String
     let steps: String
+    
 }
 
 #Preview {

@@ -1,31 +1,12 @@
 import SwiftUI
-import OSLog
 
 struct ContentView: View {
-    @StateObject private var bluetoothViewModel: BluetoothViewModel
-    private let logger = Logger(subsystem: "com.sharpscale", category: "ContentView")
-    init() {
-        let btManager = BTManager()
-        _bluetoothViewModel = StateObject(wrappedValue: BluetoothViewModel(btManager: btManager))
-        self.logger.log("ContentView Initialized")
-    }
     @State private var items: [String] = []
     let dbHelper = SQLiteHelper()
 
     var body: some View {
         NavigationView {
                     List {
-                        Section(header: Text("Bluetooth")) {
-                            if bluetoothViewModel.isConnected {
-                                Text("Connected to Raspberry Pi")
-
-                            } else {
-                                Button("Connect to Raspberry Pi") {
-                                    bluetoothViewModel.startConnectionProcess()
-                                }
-                                
-                            }
-                        }
                         Section(header: Text("Recipes")) {
                             NavigationLink(destination: RecipeView()) {
                                 Text("Manage Recipes")
@@ -37,6 +18,11 @@ struct ContentView: View {
                                 Text("Manage Ingredients")
                             }
                         }
+                        Section(header: Text("Bluetooth Devices")) {
+                            NavigationLink(destination: BluetoothView()) {
+                                Text("Connect to Bluetooth Device")
+                            }
+                        }
                     }
                     .navigationTitle("Main Menu")
         }
@@ -44,26 +30,30 @@ struct ContentView: View {
 }
 
 
-class BluetoothViewModel: ObservableObject, BTManagerDelegate {
-    private let logger = Logger(subsystem: "com.sharpscale", category: "BluetoothViewModel")
-    @Published var isConnected = false
-    private var btManager: BTManager
-    
-    init(btManager: BTManager) {
-        self.btManager = btManager
-        self.btManager.delegate = self
-        self.logger.log("BluetoothViewModel Initialized")
-    }
-    
-    func didUpdateConnectionStatus(connected: Bool) {
-        DispatchQueue.main.async{
-            self.isConnected = connected
-            self.logger.info("ConnectionStatus Updated:  \(connected, privacy: .public)")
+struct BluetoothView: View {
+    @ObservedObject private var bluetoothManager = BTManager()
+    @State private var items: [String] = []
+    let dbHelper = SQLiteHelper()
+    var body: some View {
+        NavigationView {
+            List {
+                Section(header: Text("Bluetooth Devices")) {
+                    ForEach(bluetoothManager.peripherals.indices, id: \.self) { index in
+                        HStack {
+                            Text(bluetoothManager.peripheralNames[index])
+                            Spacer()
+                            Button(action: {
+                                let peripheral = bluetoothManager.peripherals[index]
+                                bluetoothManager.connectToDevice(peripheral: peripheral)
+                            }) {
+                                Text("Connect")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Bluetooth Devices")
         }
-    }
-    
-    func startConnectionProcess() {
-        btManager.startConnectionProcess()
-        self.logger.log("btManager Connection Process Begin")
     }
 }

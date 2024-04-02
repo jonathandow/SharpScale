@@ -6,6 +6,7 @@ class SQLiteHelper {
     let dbName = "SharpScaleDB.sqlite"
     
     init() {
+        copyDatabaseIfNeeded()
         db = openDatabase()
         createTables()
     }
@@ -105,6 +106,23 @@ class SQLiteHelper {
         sqlite3_finalize(queryStatement)
         return ingredients
     }
+    func copyDatabaseIfNeeded() {
+        let fileManager = FileManager.default
+        let documentsDirectoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let finalDatabaseURL = documentsDirectoryURL.appendingPathComponent("SharpScaleDB.sqlite")
+
+        if !fileManager.fileExists(atPath: finalDatabaseURL.path) {
+            do {
+                if let bundleURL = Bundle.main.url(forResource: "SharpScaleDB", withExtension: "sqlite") {
+                    try fileManager.copyItem(at: bundleURL, to: finalDatabaseURL)
+                    print("Database successfully copied to Documents directory.")
+                }
+            } catch {
+                print("Error copying database: \(error)")
+            }
+        }
+    }
+
     private func executeStatement(_ statementString: String, successMessage: String) {
             var statement: OpaquePointer? = nil
             if sqlite3_prepare_v2(db, statementString, -1, &statement, nil) == SQLITE_OK {
