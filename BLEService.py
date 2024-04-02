@@ -259,7 +259,7 @@ def main(timeout=0):
     bus = dbus.SystemBus()
     app = Application(bus) 
     
-    example_service = GATTService(bus, 0, '1234')
+    example_service = GATTService(bus, 0, '77670a58-1cb4-4652-ae7d-2492776d303d')
     app.add_service(example_service)
     print("Added GATT Service.")
     
