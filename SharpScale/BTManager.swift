@@ -5,6 +5,8 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
     private var centralManager: CBCentralManager!
     @Published var peripherals: [CBPeripheral] = []
     @Published var peripheralNames: [String] = []
+    @Published var connectionStatus: String = ""
+    var currentPeripheralIndex: Int?
     let raspberryPiUUID = CBUUID(string: "77670a58-1cb4-4652-ae7d-2492776d303d")
     let recipeUUID = CBUUID(string: "13092a53-7511-4ae0-8c9f-97c84cfb5d9a")
     let ingredientUUID = CBUUID(string: "b36a0f4d-c30c-4b43-9710-231aeba7cdfa")
@@ -24,13 +26,14 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
     }
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? peripheral.name ?? "No Name."
-        if !peripherals.contains(peripheral) {
-            peripherals.append(peripheral)
-            peripheralNames.append(name)
-        }
+            let name = peripheral.name ?? "No Name"
+            if !peripherals.contains(peripheral) {
+                peripherals.append(peripheral)
+                peripheralNames.append(name)
+            }
     }
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        connectionStatus = "Conencted to \(peripheral.name ?? "No Name")"
         peripheral.delegate = self
         peripheral.discoverServices([raspberryPiUUID])
     }
@@ -40,8 +43,22 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
             print("CM Not On.")
             return
         }
-        print("Connecting: %@", peripheral)
+        print("Connecting: %s", String(describing: peripheral))
         centralManager.connect(peripheral, options:nil)
+    }
+    
+    private func cleanup() {
+        guard let discoveredPeripheral = raspberryPiPeripheral,
+            case .connected = discoveredPeripheral.state else { return }
+        
+        for service in (discoveredPeripheral.services ?? [] as [CBService]) {
+            for characteristic in (service.characteristics ?? [] as [CBCharacteristic]) {
+                if characteristic.uuid == recipeUUID && characteristic.isNotifying {
+                    self.raspberryPiPeripheral?.setNotifyValue(false, for: characteristic)
+                }
+            }
+        }
+        centralManager.cancelPeripheralConnection(discoveredPeripheral)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -82,5 +99,10 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
                 }
             }
         }
+    
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        os_log("Failed to connect to %@. %s", peripheral, String(describing: error))
+        cleanup()
+    }
 }
 // Path: /Desktop/SharpScale/SharpScale/ContentView.swift

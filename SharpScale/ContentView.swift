@@ -32,7 +32,8 @@ struct ContentView: View {
 
 struct BluetoothView: View {
     @ObservedObject private var bluetoothManager = BTManager()
-    @State private var items: [String] = []
+    @State private var isConnecting: Bool = false
+    @State private var connectionStatus: String = ""
     let dbHelper = SQLiteHelper()
     var body: some View {
         NavigationView {
@@ -42,12 +43,19 @@ struct BluetoothView: View {
                         HStack {
                             Text(bluetoothManager.peripheralNames[index])
                             Spacer()
-                            Button(action: {
-                                let peripheral = bluetoothManager.peripherals[index]
-                                bluetoothManager.connectToDevice(peripheral: peripheral)
-                            }) {
-                                Text("Connect")
-                                    .foregroundColor(.blue)
+                            if isConnecting && bluetoothManager.currentPeripheralIndex == index {
+                                Text("Connecting...")
+                                    .foregroundColor(.gray)
+                            } else {
+                                Button(action: {
+                                    isConnecting = true
+                                    let peripheral = bluetoothManager.peripherals[index]
+                                    bluetoothManager.currentPeripheralIndex = index
+                                    bluetoothManager.connectToDevice(peripheral: peripheral)
+                                }) {
+                                    Text("Connect")
+                                        .foregroundColor(.blue)
+                                }
                             }
                         }
                     }
