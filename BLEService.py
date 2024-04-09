@@ -25,6 +25,8 @@ DBUS_PROP_IFACE = 'org.freedesktop.DBus.Properties'
 
 LE_ADVERTISEMENT_IFACE = 'org.bluez.LEAdvertisement1'
 
+MyServiceUUID = '77670a58-1cb4-4652-ae7d-2492776d303d'
+MyCharUUID = 'dd444f51-3cde-4d0e-b5fb-f81663f16839'k
 
 class InvalidArgsException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
@@ -121,6 +123,10 @@ class GATTCharacteristic(dbus.service.Object):
         print("Read from characteristic")
         return self.value
 
+    def WriteValue(self, value, options):
+        print("Read Data to Write.")
+        self.value = value
+
 class Advertisement(dbus.service.Object):
     PATH_BASE = '/org/bluez/example/advertisement'
 
@@ -216,14 +222,9 @@ class TestAdvertisement(Advertisement):
 
     def __init__(self, bus, index):
         Advertisement.__init__(self, bus, index, 'peripheral')
-        self.add_service_uuid('180D')
-        self.add_service_uuid('180F')
-        self.add_manufacturer_data(0xffff, [0x00, 0x01, 0x02, 0x03])
-        self.add_service_data('9999', [0x00, 0x01, 0x02, 0x03, 0x04])
+        self.add_service_uuid(MyServiceUUID)
         self.add_local_name('SharpScale')
         self.include_tx_power = True
-        self.add_data(0x26, [0x01, 0x01, 0x00])
-
 
 def register_ad_cb():
     print('Advertisement registered')
@@ -260,11 +261,11 @@ def main(timeout=0):
     bus = dbus.SystemBus()
     app = Application(bus) 
     
-    example_service = GATTService(bus, 0, '77670a58-1cb4-4652-ae7d-2492776d303d')
+    example_service = GATTService(bus, 0, MyServiceUUID)
     app.add_service(example_service)
     print("Added GATT Service.")
     
-    example_char = GATTCharacteristic(bus, 0, 'dd444f51-3cde-4d0e-b5fb-f81663f16839', ["read", "write"], example_service)
+    example_char = GATTCharacteristic(bus, 0, MyCharUUID, ["write"], example_service)
     example_service.add_characteristic(example_char)
     
     adapter = find_adapter(bus)
