@@ -103,6 +103,7 @@ class GATTCharacteristic(dbus.service.Object):
         dbus.service.Object.__init__(self, bus, self.path)
         
     def get_properties(self):
+        print(self.uuid)
         return {
             self.GATT_CHR_IFACE: {
                 'Service': self.service.get_path(),
@@ -263,7 +264,7 @@ def main(timeout=0):
     app.add_service(example_service)
     print("Added GATT Service.")
     
-    example_char = GATTCharacteristic(bus, 0, '5678', ["read"], example_service)
+    example_char = GATTCharacteristic(bus, 0, 'dd444f51-3cde-4d0e-b5fb-f81663f16839', ["read", "write"], example_service)
     example_service.add_characteristic(example_char)
     
     adapter = find_adapter(bus)
