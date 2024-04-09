@@ -26,7 +26,7 @@ DBUS_PROP_IFACE = 'org.freedesktop.DBus.Properties'
 LE_ADVERTISEMENT_IFACE = 'org.bluez.LEAdvertisement1'
 
 MyServiceUUID = '77670a58-1cb4-4652-ae7d-2492776d303d'
-MyCharUUID = 'dd444f51-3cde-4d0e-b5fb-f81663f16839'k
+MyCharUUID = 'dd444f51-3cde-4d0e-b5fb-f81663f16839'
 
 class InvalidArgsException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
@@ -309,4 +309,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.timeout)
-
