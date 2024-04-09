@@ -31,37 +31,29 @@ struct ContentView: View {
 
 
 struct BluetoothView: View {
-    @ObservedObject private var bluetoothManager = BTManager()
-    @State private var isConnecting: Bool = false
-    @State private var connectionStatus: String = ""
-    let dbHelper = SQLiteHelper()
+    @ObservedObject var bluetoothManager = BTManager()
+
     var body: some View {
         NavigationView {
-            List {
-                Section(header: Text("Bluetooth Devices")) {
-                    ForEach(bluetoothManager.peripherals.indices, id: \.self) { index in
-                        HStack {
-                            Text(bluetoothManager.peripheralNames[index])
-                            Spacer()
-                            if isConnecting && bluetoothManager.currentPeripheralIndex == index {
-                                Text("Connecting...")
-                                    .foregroundColor(.gray)
-                            } else {
-                                Button(action: {
-                                    isConnecting = true
-                                    let peripheral = bluetoothManager.peripherals[index]
-                                    bluetoothManager.currentPeripheralIndex = index
-                                    bluetoothManager.connectToDevice(peripheral: peripheral)
-                                }) {
-                                    Text("Connect")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                        }
-                    }
-                }
+            VStack {
+                Text("Raspberry Pi 5 Connection Status")
+                    .font(.headline)
+                    .padding()
+
+                Text(bluetoothManager.connectionStatus)
+                    .font(.body)
+                    .foregroundColor(bluetoothManager.connectionStatus.contains("Connected") ? .green : .red)
+                    .padding()
+
+                Spacer()
             }
-            .navigationTitle("Bluetooth Devices")
+            .navigationBarTitle("Bluetooth Connection")
         }
+    }
+}
+
+struct BluetoothView_Previews: PreviewProvider {
+    static var previews: some View {
+        BluetoothView()
     }
 }
