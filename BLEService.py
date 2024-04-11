@@ -25,6 +25,8 @@ DBUS_PROP_IFACE = 'org.freedesktop.DBus.Properties'
 
 LE_ADVERTISEMENT_IFACE = 'org.bluez.LEAdvertisement1'
 
+MyServiceUUID = '77670a58-1cb4-4652-ae7d-2492776d303d'
+MyCharUUID = 'dd444f51-3cde-4d0e-b5fb-f81663f16839'
 
 class InvalidArgsException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
@@ -103,6 +105,7 @@ class GATTCharacteristic(dbus.service.Object):
         dbus.service.Object.__init__(self, bus, self.path)
         
     def get_properties(self):
+        print(self.uuid)
         return {
             self.GATT_CHR_IFACE: {
                 'Service': self.service.get_path(),
@@ -119,6 +122,10 @@ class GATTCharacteristic(dbus.service.Object):
     def ReadValue(self, options):
         print("Read from characteristic")
         return self.value
+    @dbus.service.method(GATT_CHR_IFACE, in_signature='aya{sv}', out_signature='')
+    def WriteValue(self, value, options):
+        print("Read Data to Write.")
+        self.value = value
 
 class Advertisement(dbus.service.Object):
     PATH_BASE = '/org/bluez/example/advertisement'
@@ -215,14 +222,9 @@ class TestAdvertisement(Advertisement):
 
     def __init__(self, bus, index):
         Advertisement.__init__(self, bus, index, 'peripheral')
-        self.add_service_uuid('180D')
-        self.add_service_uuid('180F')
-        self.add_manufacturer_data(0xffff, [0x00, 0x01, 0x02, 0x03])
-        self.add_service_data('9999', [0x00, 0x01, 0x02, 0x03, 0x04])
+        self.add_service_uuid(MyServiceUUID)
         self.add_local_name('SharpScale')
         self.include_tx_power = True
-        self.add_data(0x26, [0x01, 0x01, 0x00])
-
 
 def register_ad_cb():
     print('Advertisement registered')
@@ -259,13 +261,13 @@ def main(timeout=0):
     bus = dbus.SystemBus()
     app = Application(bus) 
     
-    example_service = GATTService(bus, 0, '77670a58-1cb4-4652-ae7d-2492776d303d')
+    example_service = GATTService(bus, 0, MyServiceUUID)
     app.add_service(example_service)
-    print("Added GATT Service.")
+    print("Added GATT Service: {}".format(MyServiceUUID))
     
-    example_char = GATTCharacteristic(bus, 0, '5678', ["read"], example_service)
+    example_char = GATTCharacteristic(bus, 0, MyCharUUID, ["write", "notify"], example_service)
     example_service.add_characteristic(example_char)
-    
+    print("Added characteristic: {}".format(MyCharUUID))
     adapter = find_adapter(bus)
     if not adapter:
         print('LEAdvertisingManager1 interface not found')
@@ -307,4 +309,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.timeout)
-
