@@ -77,23 +77,16 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        print("Discovering Services....")
         if let error = error {
             print("Error discovering services: \(error.localizedDescription)")
             return
         }
         
-        guard let services = peripheral.services else {
-            print("No services found.")
-            return
-        }
-        for service in services {
-            if service.uuid == serviceUUID {
-                print("Found service: \(service.uuid.uuidString)")
-                peripheral.discoverCharacteristics(nil, for: service)
-            } else {
-                print("Not correct.")
-            }
+        if let services = peripheral.services, !services.isEmpty {
+            print("Discovered services: \(services)")
+            peripheral.discoverCharacteristics(nil, for: services[0])
+        } else {
+            print("No services found or services array is empty.")
         }
     }
     
