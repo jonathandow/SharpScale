@@ -46,6 +46,11 @@ struct BluetoothView: View {
                     .padding()
 
                 Spacer()
+                
+                Button("Update Raspberry Pi Database") {
+                    bluetoothManager.initiateDatabaseUpdate()
+                }
+                .disabled(!bluetoothManager.isConnected)
             }
             .navigationBarTitle("Bluetooth Connection")
         }

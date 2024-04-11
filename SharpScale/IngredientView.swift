@@ -37,7 +37,7 @@ struct IngredientView: View {
     }
 }
 
-struct Ingredient {
+struct Ingredient: Codable {
     let id: Int
     let name: String
     let density: Double

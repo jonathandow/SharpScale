@@ -1,16 +1,30 @@
 import CoreBluetooth
+import Foundation
 
-class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate {
+class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var centralManager: CBCentralManager!
     @Published var connectionStatus: String = "Disconnected"
-    private let serviceUUID = CBUUID(string: "180D")
+    private let serviceUUID = CBUUID(string: "77670a58-1cb4-4652-ae7d-2492776d303d")
     private var raspberryPiPeripheral: CBPeripheral?
+    private let databaseUpdateCharacteristicUUID = CBUUID(string: "dd444f51-3cde-4d0e-b5fb-f81663f16839")
+    let dbHelper = SQLiteHelper()
+    @Published var isConnected: Bool = false
     
     override init() {
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
     }
-    
+    func initiateDatabaseUpdate() {
+        guard let peripheral = raspberryPiPeripheral else {
+            print("Peripheral Not found.")
+            return
+        }
+        print("Name: \(peripheral.name as Any)")
+        print("UUID: \(peripheral.identifier.uuidString)")
+        peripheral.delegate = self
+        peripheral.discoverServices(nil)
+        print("DB INIT...")
+    }
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .poweredOn:
@@ -32,22 +46,121 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate {
     }
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+        guard let peripheralName = peripheral.name, peripheralName.contains("raspberrypi") else {
+            print("Found a device, but it's not the Raspberry Pi: \(peripheral.name ?? "Unknown")")
+            return
+        }
+        print(advertisementData)
+        print("Raspberry Pi found: \(peripheralName)")
         centralManager.stopScan()
-        centralManager.connect(peripheral, options: nil)
-        self.raspberryPiPeripheral = peripheral
-        connectionStatus = "Connecting to \(peripheral.name ?? "device")..."
+        raspberryPiPeripheral = peripheral
+        raspberryPiPeripheral?.delegate = self
+        centralManager.connect(raspberryPiPeripheral!, options: nil)
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        isConnected = true
         connectionStatus = "Connected to \(peripheral.name ?? "Raspberry Pi 5")"
+        print(connectionStatus)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         connectionStatus = "Failed to connect to \(peripheral.name ?? "device")"
+        print(connectionStatus)
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         connectionStatus = "Disconnected"
+        isConnected = false
         centralManager.connect(peripheral, options: nil)
+        print(connectionStatus)
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        print("Discovering Services....")
+        if let error = error {
+            print("Error discovering services: \(error.localizedDescription)")
+            return
+        }
+        
+        guard let services = peripheral.services else {
+            print("No services found.")
+            return
+        }
+        for service in services {
+            if service.uuid == serviceUUID {
+                print("Found service: \(service.uuid.uuidString)")
+                peripheral.discoverCharacteristics(nil, for: service)
+            } else {
+                print("Not correct.")
+            }
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        print("Discovering Characteristics.....")
+        if let error = error {
+            print("Error discovering characteristics: \(error.localizedDescription)")
+            return
+        }
+        print(service.characteristics ?? "hi")
+        print("1")
+        if let characteristics = service.characteristics {
+            for characteristic in characteristics {
+                if characteristic.uuid == databaseUpdateCharacteristicUUID{
+                    print("Found characteristic: \(characteristic.uuid)")
+                    sendDBUpdate(toPeripheral: peripheral, forCharacteristic: characteristic)
+                    break
+                }
+            }
+        }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        if let error = error {
+            print("Error writing characteristic \(characteristic.uuid): \(error)")
+            return
+        }
+        print("Successfully wrote value to characteristic \(characteristic.uuid)")
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+        print("Peripheral services have been modified: \(invalidatedServices)")
+    }
+    
+    func sendDBUpdate(toPeripheral periphal: CBPeripheral, forCharacteristic characteristic: CBCharacteristic) {
+        print("Sending DB update...")
+        let recipes = dbHelper.fetchAllRecipes()
+        let ingredients = dbHelper.fetchAllIngredients()
+        let databaseData = DatabaseData(recipes: recipes, ingredients: ingredients)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .withoutEscapingSlashes
+        print("Encoding...")
+        if let jsonData = try? encoder.encode(databaseData) {
+            if let peripheral = self.raspberryPiPeripheral {
+                let maximumLength = peripheral.maximumWriteValueLength(for: .withResponse)
+                let chunks = jsonData.chunked(into: maximumLength)
+                for chunk in chunks {
+                    peripheral.writeValue(chunk, for: characteristic, type: .withResponse)
+                    print("Writing chunk to characteristic with UUID: \(characteristic.uuid)")
+                }
+            }
+        }
+    }
+    struct DatabaseData: Codable {
+        let recipes: [Recipe]
+        let ingredients: [Ingredient]
+    }
+}
+extension Data {
+    func chunked(into size: Int) -> [Data] {
+        var chunks = [Data]()
+        var index = startIndex
+        while index < endIndex {
+            let endIndex = self.index(index, offsetBy: size, limitedBy: endIndex) ?? endIndex
+            chunks.append(subdata(in: index..<endIndex))
+            index = endIndex
+        }
+        return chunks
     }
 }
