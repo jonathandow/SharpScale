@@ -263,11 +263,11 @@ def main(timeout=0):
     
     example_service = GATTService(bus, 0, MyServiceUUID)
     app.add_service(example_service)
-    print("Added GATT Service.")
+    print("Added GATT Service: {}".format(MyServiceUUID))
     
-    example_char = GATTCharacteristic(bus, 0, MyCharUUID, ["write"], example_service)
+    example_char = GATTCharacteristic(bus, 0, MyCharUUID, ["write", "notify"], example_service)
     example_service.add_characteristic(example_char)
-    
+    print("Added characteristic: {}".format(MyCharUUID))
     adapter = find_adapter(bus)
     if not adapter:
         print('LEAdvertisingManager1 interface not found')
