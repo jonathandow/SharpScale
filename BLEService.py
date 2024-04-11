@@ -122,7 +122,7 @@ class GATTCharacteristic(dbus.service.Object):
     def ReadValue(self, options):
         print("Read from characteristic")
         return self.value
-
+    @dbus.service.method(GATT_CHR_IFACE, in_signature='aya{sv}', out_signature='')
     def WriteValue(self, value, options):
         print("Read Data to Write.")
         self.value = value
