@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		312563822B9115CE00E5705D /* SharpScaleDB.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 312563812B9115CE00E5705D /* SharpScaleDB.sqlite */; };
 		316CB1C72B7AA2A0000E1893 /* SharpScaleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1C62B7AA2A0000E1893 /* SharpScaleApp.swift */; };
 		316CB1C92B7AA2A0000E1893 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1C82B7AA2A0000E1893 /* ContentView.swift */; };
 		316CB1CB2B7AA2A2000E1893 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 316CB1CA2B7AA2A2000E1893 /* Assets.xcassets */; };
@@ -18,6 +19,7 @@
 		316CB1F42B7AA2E8000E1893 /* DBHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1F32B7AA2E8000E1893 /* DBHelper.swift */; };
 		316CB1F62B7AA3DE000E1893 /* IngredientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1F52B7AA3DE000E1893 /* IngredientView.swift */; };
 		316CB1F82B7AA3E6000E1893 /* RecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1F72B7AA3E6000E1893 /* RecipeView.swift */; };
+		316CB1FA2B83C7A9000E1893 /* BTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316CB1F92B83C7A9000E1893 /* BTManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		312563812B9115CE00E5705D /* SharpScaleDB.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = SharpScaleDB.sqlite; sourceTree = "<group>"; };
 		316CB1C32B7AA2A0000E1893 /* SharpScale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SharpScale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		316CB1C62B7AA2A0000E1893 /* SharpScaleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharpScaleApp.swift; sourceTree = "<group>"; };
 		316CB1C82B7AA2A0000E1893 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -52,6 +55,7 @@
 		316CB1F32B7AA2E8000E1893 /* DBHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBHelper.swift; sourceTree = "<group>"; };
 		316CB1F52B7AA3DE000E1893 /* IngredientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientView.swift; sourceTree = "<group>"; };
 		316CB1F72B7AA3E6000E1893 /* RecipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeView.swift; sourceTree = "<group>"; };
+		316CB1F92B83C7A9000E1893 /* BTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BTManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,7 +110,9 @@
 			children = (
 				316CB1C62B7AA2A0000E1893 /* SharpScaleApp.swift */,
 				316CB1C82B7AA2A0000E1893 /* ContentView.swift */,
+				316CB1F92B83C7A9000E1893 /* BTManager.swift */,
 				316CB1F32B7AA2E8000E1893 /* DBHelper.swift */,
+				312563812B9115CE00E5705D /* SharpScaleDB.sqlite */,
 				316CB1F52B7AA3DE000E1893 /* IngredientView.swift */,
 				316CB1F72B7AA3E6000E1893 /* RecipeView.swift */,
 				316CB1CA2B7AA2A2000E1893 /* Assets.xcassets */,
@@ -252,6 +258,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				312563822B9115CE00E5705D /* SharpScaleDB.sqlite in Resources */,
 				316CB1CE2B7AA2A2000E1893 /* Preview Assets.xcassets in Resources */,
 				316CB1CB2B7AA2A2000E1893 /* Assets.xcassets in Resources */,
 			);
@@ -283,6 +290,7 @@
 				316CB1C72B7AA2A0000E1893 /* SharpScaleApp.swift in Sources */,
 				316CB1F62B7AA3DE000E1893 /* IngredientView.swift in Sources */,
 				316CB1F82B7AA3E6000E1893 /* RecipeView.swift in Sources */,
+				316CB1FA2B83C7A9000E1893 /* BTManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -443,11 +451,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SharpScale/SharpScale.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SharpScale/Preview Content\"";
+				DEVELOPMENT_TEAM = BU9DHF4XQT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Must Use Bluetooth to Interact with Devices in Background";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Must use Bluetooth to connect to Raspberry Pi";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -471,11 +483,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SharpScale/SharpScale.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SharpScale/Preview Content\"";
+				DEVELOPMENT_TEAM = BU9DHF4XQT;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Must Use Bluetooth to Interact with Devices in Background";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Must use Bluetooth to connect to Raspberry Pi";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

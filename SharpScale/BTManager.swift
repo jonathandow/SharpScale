@@ -4,6 +4,7 @@ import Foundation
 class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     private var centralManager: CBCentralManager!
     @Published var connectionStatus: String = "Disconnected"
+    private let testUUID = CBUUID(string: "5E434CBB-60DB-82C2-5274-59681535F4FC")
     private let serviceUUID = CBUUID(string: "77670a58-1cb4-4652-ae7d-2492776d303d")
     private var raspberryPiPeripheral: CBPeripheral?
     private let databaseUpdateCharacteristicUUID = CBUUID(string: "dd444f51-3cde-4d0e-b5fb-f81663f16839")
@@ -19,8 +20,6 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
             print("Peripheral Not found.")
             return
         }
-        print("Name: \(peripheral.name as Any)")
-        print("UUID: \(peripheral.identifier.uuidString)")
         peripheral.delegate = self
         peripheral.discoverServices(nil)
         print("DB INIT...")
@@ -54,7 +53,7 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
         print("Raspberry Pi found: \(peripheralName)")
         centralManager.stopScan()
         raspberryPiPeripheral = peripheral
-        raspberryPiPeripheral?.delegate = self
+        raspberryPiPeripheral!.delegate = self
         centralManager.connect(raspberryPiPeripheral!, options: nil)
     }
     
@@ -77,23 +76,19 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        print("Discovering Services....")
+        print("finding service")
         if let error = error {
             print("Error discovering services: \(error.localizedDescription)")
             return
         }
-        
+        print(peripheral.services ?? "Hi")
         guard let services = peripheral.services else {
-            print("No services found.")
+            print("no services found...")
             return
         }
         for service in services {
-            if service.uuid == serviceUUID {
-                print("Found service: \(service.uuid.uuidString)")
-                peripheral.discoverCharacteristics(nil, for: service)
-            } else {
-                print("Not correct.")
-            }
+            print("Service found: \(service.uuid.uuidString)")
+            peripheral.discoverCharacteristics(nil, for: service)
         }
     }
     
@@ -103,15 +98,28 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
             print("Error discovering characteristics: \(error.localizedDescription)")
             return
         }
-        print(service.characteristics ?? "hi")
-        print("1")
-        if let characteristics = service.characteristics {
-            for characteristic in characteristics {
-                if characteristic.uuid == databaseUpdateCharacteristicUUID{
-                    print("Found characteristic: \(characteristic.uuid)")
-                    sendDBUpdate(toPeripheral: peripheral, forCharacteristic: characteristic)
-                    break
-                }
+//        print(service.characteristics ?? "hi")
+//        print("1")
+//        if let characteristics = service.characteristics {
+//            for characteristic in characteristics {
+//                if characteristic.uuid == databaseUpdateCharacteristicUUID{
+//                    print("Found characteristic: \(characteristic.uuid)")
+//                    sendDBUpdate(toPeripheral: peripheral, forCharacteristic: characteristic)
+//                    break
+//                }
+//            }
+//        }
+        guard let characteristics = service.characteristics else {
+            print("No characteristics found")
+            return
+        }
+        print(characteristics)
+        for characteristic in characteristics {
+            print("....")
+            if characteristic.uuid.isEqual(databaseUpdateCharacteristicUUID){
+                peripheral.setNotifyValue(true, for: characteristic)
+                print("found characteristic")
+                sendDBUpdate(toPeripheral: peripheral, forCharacteristic: characteristic)
             }
         }
     }
@@ -143,6 +151,9 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
                 for chunk in chunks {
                     peripheral.writeValue(chunk, for: characteristic, type: .withResponse)
                     print("Writing chunk to characteristic with UUID: \(characteristic.uuid)")
+                    
+                let eOTS = Data()
+                peripheral.writeValue(eOTS, for: characteristic, type: .withResponse)
                 }
             }
         }
