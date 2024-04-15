@@ -25,8 +25,8 @@ DBUS_PROP_IFACE = 'org.freedesktop.DBus.Properties'
 
 LE_ADVERTISEMENT_IFACE = 'org.bluez.LEAdvertisement1'
 
-MyServiceUUID = '77670a58-1cb4-4652-ae7d-2492776d303d'
-MyCharUUID = 'dd444f51-3cde-4d0e-b5fb-f81663f16839'
+MyServiceUUID = '77670A58-1CB4-4652-AE7D-2492776D303D'
+MyCharUUID = 'DD444F51-3CDE-4D0E-B5FB-F81663F16839'
 
 class InvalidArgsException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
@@ -52,7 +52,6 @@ class Application(dbus.service.Object):
         self.path = '/'
         self.services = []
         dbus.service.Object.__init__(self, bus, self.path)
-    
     def get_path(self):
         dbus.ObjectPath(self.path)
     
@@ -72,7 +71,7 @@ class GATTService(dbus.service.Object):
     GATT_SERVICE_IFACE = 'org.bluez.GattService1'
     
     def __init__(self, bus, index, uuid):
-        self.path = '/org/bluez/example/service' + str(index)
+        self.path = '/org/bluez/SharpScale' + str(index)
         self.bus = bus
         self.uuid = uuid
         self.characteristics = []
@@ -262,10 +261,12 @@ def main(timeout=0):
     app = Application(bus) 
     
     example_service = GATTService(bus, 0, MyServiceUUID)
+    print(example_service)
     app.add_service(example_service)
     print("Added GATT Service: {}".format(MyServiceUUID))
     
     example_char = GATTCharacteristic(bus, 0, MyCharUUID, ["write", "notify"], example_service)
+    print(example_char)
     example_service.add_characteristic(example_char)
     print("Added characteristic: {}".format(MyCharUUID))
     adapter = find_adapter(bus)
