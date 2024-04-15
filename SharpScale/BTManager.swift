@@ -140,6 +140,7 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
         let recipes = dbHelper.fetchAllRecipes()
         let ingredients = dbHelper.fetchAllIngredients()
         let databaseData = DatabaseData(recipes: recipes, ingredients: ingredients)
+        print(databaseData)
         let encoder = JSONEncoder()
         encoder.outputFormatting = .withoutEscapingSlashes
         print("Encoding...")
@@ -147,7 +148,10 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
             if let peripheral = self.raspberryPiPeripheral {
                 let maximumLength = peripheral.maximumWriteValueLength(for: .withResponse)
                 let chunks = jsonData.chunked(into: maximumLength)
+                print("\n \n \n")
+                print(chunks)
                 for chunk in chunks {
+                    print(chunk)
                     peripheral.writeValue(chunk, for: characteristic, type: .withResponse)
                     print("Writing chunk to characteristic with UUID: \(characteristic.uuid)")
                     
@@ -174,4 +178,3 @@ extension Data {
         return chunks
     }
 }
-
