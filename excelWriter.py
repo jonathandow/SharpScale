@@ -20,6 +20,11 @@ def process_db(json_file):
 		
 	print('Wrote data to received_db.xlsx')
 
+def clear_file(filename):
+	with open(filename, 'r+') as f:
+		f.truncate(0)
+
 if __name__ == "__main__":
+	clear_file('received_db.xlsx')
 	process_db("SSData.db")
 
