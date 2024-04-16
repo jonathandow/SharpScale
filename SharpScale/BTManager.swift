@@ -24,7 +24,6 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
         }
         peripheral.delegate = self
         peripheral.discoverServices(nil)
-        print("DB INIT...")
     }
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
@@ -51,7 +50,6 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
             print("Found a device, but it's not the Raspberry Pi: \(peripheral.name ?? "Unknown")")
             return
         }
-        print(advertisementData)
         print("Raspberry Pi found: \(peripheralName)")
         centralManager.stopScan()
         raspberryPiPeripheral = peripheral
@@ -99,17 +97,6 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
             print("Error discovering characteristics: \(error.localizedDescription)")
             return
         }
-//        print(service.characteristics ?? "hi")
-//        print("1")
-//        if let characteristics = service.characteristics {
-//            for characteristic in characteristics {
-//                if characteristic.uuid == databaseUpdateCharacteristicUUID{
-//                    print("Found characteristic: \(characteristic.uuid)")
-//                    sendDBUpdate(toPeripheral: peripheral, forCharacteristic: characteristic)
-//                    break
-//                }
-//            }
-//        }
         guard let characteristics = service.characteristics else {
             print("No characteristics found")
             return
@@ -163,33 +150,14 @@ class BTManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriphe
     func sendNextChunk(toPeripheral peripheral: CBPeripheral, forCharacteristic characteristic: CBCharacteristic) {
         if currentChunkIndex < self.dataChunks.count {
             let chunk = self.dataChunks[currentChunkIndex]
-            print(chunk)
-            print(self.dataChunks)
             print("Sending chunk...")
             peripheral.writeValue(chunk, for: characteristic, type: .withResponse)
         } else {
-            let eotSignal = "<#end_of_transmission_signal#>".data(using: .utf8)!
-            peripheral.writeValue(eotSignal, for: characteristic, type: .withResponse)
-            print("EOT Signal Sent.")
+            print("EOT")
             return
         }
     }
-    
-//        if let jsonData = try? encoder.encode(databaseData) {
-//            if let peripheral = self.raspberryPiPeripheral {
-//                let maximumLength = peripheral.maximumWriteValueLength(for: .withResponse)
-//                let chunks = jsonData.chunked(into: maximumLength)
-//                print("\n \n \n")
-//                for chunk in chunks {
-//                    print(chunk)
-//                    peripheral.writeValue(chunk, for: characteristic, type: .withResponse)
-//                    print("Writing chunk to characteristic with UUID: \(characteristic.uuid)")
-//                    
-//                    let eOTS = Data()
-//                    peripheral.writeValue(eOTS, for: characteristic, type: .withResponse)
-//                }
-//            }
-//        }
+
     struct DatabaseData: Codable {
         let recipes: [Recipe]
         let ingredients: [Ingredient]
