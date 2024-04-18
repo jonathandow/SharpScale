@@ -93,8 +93,8 @@ def clear_file(filename):
 if __name__ == "__main__":
 	clear_file('received_db.xlsx')
 	process_db("SSData.db")
-	with open("SSData.db", 'r+') as f:
-		f.truncate(0)
+	#with open("SSData.db", 'r+') as f:
+		#f.truncate(0)
 	res = extractData("received_db.xlsx")
 	print(res)
 
